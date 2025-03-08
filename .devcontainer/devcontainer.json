@@ -18,7 +18,9 @@
 				"esbenp.prettier-vscode",
 				"ms-azuretools.vscode-bicep",
 				"GitHub.copilot",
-				"GitHub.vscode-github-actions"
+				"GitHub.vscode-github-actions",
+				"humao.rest-client",
+				"ms-vscode.vscode-node-azure-pack"
 			]
 		}
 	}

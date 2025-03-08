@@ -1,15 +1,33 @@
+using Azure.Identity;
+using Microsoft.Extensions.Options;
+using api.Models;
+
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-builder.Services.AddOpenApi();
+// builder.Services.AddOpenApi();
+
+// Add configuration sources based on environment
+if (builder.Environment.IsProduction())
+{
+    var keyVaultUrl = builder.Configuration["KeyVaultConfig:KeyVaultUrl"];
+    // builder.Configuration.AddAzureKeyVault(new Uri(keyVaultUrl!), new DefaultAzureCredential());
+    builder.Configuration.AddAzureKeyVault(
+        new Uri(keyVaultUrl!),
+        new DefaultAzureCredential());
+}
+
+// Register settings (works for both local and Key Vault configuration)
+builder.Services.Configure<MyAppSettings>(builder.Configuration.GetSection("MyAppSettings"));
 
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    app.MapOpenApi();
+    // app.MapOpenApi();
 }
 
 app.UseHttpsRedirection();
@@ -21,7 +39,7 @@ var summaries = new[]
 
 app.MapGet("/weatherforecast", () =>
 {
-    var forecast =  Enumerable.Range(1, 5).Select(index =>
+    var forecast = Enumerable.Range(1, 5).Select(index =>
         new WeatherForecast
         (
             DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
@@ -32,6 +50,12 @@ app.MapGet("/weatherforecast", () =>
     return forecast;
 })
 .WithName("GetWeatherForecast");
+
+app.MapGet("/mysettings", (IOptions<MyAppSettings> options) =>
+{
+    var settings = options.Value;
+    return Results.Ok(settings);
+});
 
 app.Run();
 
