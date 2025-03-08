@@ -97,3 +97,4 @@ coverage.cobertura.xml
 # Ignore build directories
 build/
 dist/
+.DS_Store
